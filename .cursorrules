@@ -1,0 +1,69 @@
+# Alman Hesabi - Cursor Rules
+
+## Project Overview
+Alman Hesabi is a Tricount-like expense sharing/bill splitting application.
+Users can create groups, add expenses, split them equally or with custom amounts,
+and see who owes whom with optimized debt simplification.
+
+## Architecture
+- **Monorepo** with frontend and backend in a single workspace.
+- **Frontend**: Next.js (App Router, TypeScript, Tailwind CSS) in `/frontend`
+- **Backend**: Go (Fiber framework) in `/backend`
+- **Database**: PostgreSQL (via Docker)
+- **Auth**: JWT-based authentication
+
+## Directory Structure
+```
+/frontend         → Next.js app (TypeScript, Tailwind, App Router)
+/backend          → Go API server
+  /cmd            → Entry point (main.go)
+  /internal
+    /routes       → HTTP route definitions
+    /controllers  → Request/Response handlers
+    /services     → Business logic (split calculation, balance computation)
+    /models       → Database models (User, Group, Expense, ExpenseSplit)
+    /middleware   → Auth middleware (JWT)
+/stories.md       → User stories (source of truth for features)
+/scripts          → Automation scripts
+/docker-compose.yml → Infrastructure (PostgreSQL)
+```
+
+## Coding Conventions
+
+### Go (Backend)
+- Follow standard Go project layout.
+- Use Fiber v2 for HTTP handling.
+- Models use GORM struct tags.
+- Error responses: `{ "error": "message" }`.
+- Success responses: JSON with appropriate status codes.
+- Use `internal/` package for non-exported packages.
+
+### TypeScript (Frontend)
+- Use functional React components with hooks.
+- Use Next.js App Router conventions (page.tsx, layout.tsx, loading.tsx).
+- Style with Tailwind CSS utility classes.
+- API calls go through `/src/lib/` utility functions.
+- Components in `/src/components/` should be reusable.
+
+### General
+- Always reference `stories.md` for feature requirements.
+- Keep API endpoints RESTful: `/api/groups`, `/api/groups/:id/expenses`.
+- Currency amounts use float64 with 2 decimal precision.
+- Default currency is TRY (Turkish Lira).
+
+## API Endpoints
+- POST /api/auth/register
+- POST /api/auth/login
+- POST /api/groups
+- POST /api/groups/join
+- GET  /api/groups/:groupId
+- POST /api/groups/:groupId/expenses
+- GET  /api/groups/:groupId/expenses
+- GET  /api/groups/:groupId/balances
+
+## Database Tables
+- users (id, name, email, password_hash, created_at)
+- groups (id, name, currency, invite_code, created_by, created_at)
+- group_members (group_id, user_id, joined_at)
+- expenses (id, group_id, description, amount, currency, paid_by, split_type, date, created_at)
+- expense_splits (id, expense_id, user_id, amount)
